@@ -20,11 +20,11 @@ def main():
 	cond = True
 
 	start_time = time.time()
-	
+
 	while cond == True:
-		    
+
 		vel_msg = Twist()
-		
+
 		vel_msg.linear.x = 3
 		vel_msg.linear.y = 0
 		vel_msg.linear.z = 0
@@ -34,14 +34,14 @@ def main():
 
 		velocity_publisher.publish(vel_msg)
 		var_loop_rate.sleep()
-		
+
 		# there's a delay of 0.3 sec between start of python time
 		# and start of the movement of bot. Thus we need to subtract 
 		# 0.3 from the actual "break time" provided in the if condition below
 		## 0.7 sec travel ( 1 sec break time - 0.3) => theta of 2.112 rad   
 		## (actual break time - 0.3) => theta of 2*pi rad 
 		## solving this corelation , we get break time = 2.38249513
-		
+
 		if (time.time() - start_time >= (2.38249513)):
 			vel_msg.linear.x = 0 
 			vel_msg.linear.y = 0
@@ -54,15 +54,13 @@ def main():
 			cond = False
 
 	ros_sub.unregister()
-	
-	raise(rospy.ROSInterruptException)
+	rospy.loginfo("Goal reached")
+	rospy.spin()
 
 
 if __name__ == '__main__':
     try:
         main()
     except rospy.ROSInterruptException:
-        rospy.loginfo("Goal reached")
-    	rospy.spin()
-
+        pass
 
