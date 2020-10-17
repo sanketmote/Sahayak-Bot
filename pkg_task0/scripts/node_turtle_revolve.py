@@ -11,7 +11,7 @@ def main():
 
 	rospy.init_node('turtle_revolve', anonymous=True)
 
-	rospy.Subscriber("/turtle1/pose", Pose, pose_callback)
+	ros_sub = rospy.Subscriber("/turtle1/pose", Pose, pose_callback)
 
 	velocity_publisher = rospy.Publisher('/turtle1/cmd_vel', Twist,queue_size=10)
 
@@ -20,32 +20,29 @@ def main():
 	cond = True
 
 	start_time = time.time()
-	rospy.loginfo("Time start: "+str(start_time))
+	
 	while cond == True:
 		    
 		vel_msg = Twist()
-
-		vel_msg.linear.x = 12.5663 
-		vel_msg.linear.y = 2.0
+		
+		vel_msg.linear.x = 3
+		vel_msg.linear.y = 0
 		vel_msg.linear.z = 0
 		vel_msg.angular.x = 0
 		vel_msg.angular.y = 0
-		vel_msg.angular.z = 6.283185
+		vel_msg.angular.z = 3
 
-		
-		# vel_msg.linear.x = 3
-		# vel_msg.linear.y = 0
-		# vel_msg.linear.z = 0
-		# vel_msg.angular.x = 0
-		# vel_msg.angular.y = 0
-		# vel_msg.angular.z = 3
-
-		
 		velocity_publisher.publish(vel_msg)
-		#rospy.loginfo("Time wasted: "+str(time.time()))
 		var_loop_rate.sleep()
-
-		if (time.time() - start_time >= (1.337494534)):
+		
+		# there's a delay of 0.3 sec between start of python time
+		# and start of the movement of bot. Thus we need to subtract 
+		# 0.3 from the actual "break time" provided in the if condition below
+		## 0.7 sec travel ( 1 sec break time - 0.3) => theta of 2.112 rad   
+		## (actual break time - 0.3) => theta of 2*pi rad 
+		## solving this corelation , we get break time = 2.38249513
+		
+		if (time.time() - start_time >= (2.38249513)):
 			vel_msg.linear.x = 0 
 			vel_msg.linear.y = 0
 			vel_msg.linear.z = 0
@@ -54,17 +51,18 @@ def main():
 			vel_msg.angular.z = 0
 
 			velocity_publisher.publish(vel_msg)
-			
-			#rospy.loginfo("Breaking the loop")
 			cond = False
 
-	#rospy.spin()
+	ros_sub.unregister()
+	
+	raise(rospy.ROSInterruptException)
 
 
 if __name__ == '__main__':
     try:
         main()
     except rospy.ROSInterruptException:
-        pass
+        rospy.loginfo("Goal reached")
+    	rospy.spin()
 
 
